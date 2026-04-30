@@ -1,0 +1,14 @@
+[project]
+name = "shop-api"
+version = "0.1.0"
+description = "Demo app stub for observability course screenshots"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.34.0",
+  "prometheus-client>=0.21.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
