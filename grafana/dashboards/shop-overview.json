@@ -1,6 +1,32 @@
 {
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "name": "Deploys",
+        "enable": true,
+        "iconColor": "orange",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "expr": "changes(process_start_time_seconds{job=\"shop-api\"}[1m]) > 0",
+        "step": "15s",
+        "titleFormat": "Deploy shop-api",
+        "textFormat": "shop-api restarted"
+      }
+    ]
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
@@ -30,7 +56,7 @@
       "id": 1,
       "targets": [
         {
-          "expr": "sum(rate(shop_http_requests_total{path=~\"/|/checkout\"}[1m]))",
+          "expr": "sum(rate(shop_http_requests_total{path=~\"$path\"}[1m]))",
           "legendFormat": "requests/s",
           "refId": "A"
         }
@@ -61,7 +87,7 @@
       "id": 2,
       "targets": [
         {
-          "expr": "sum(rate(shop_http_requests_total{path=~\"/|/checkout\",status=~\"5..\"}[1m])) / sum(rate(shop_http_requests_total{path=~\"/|/checkout\"}[1m]))",
+          "expr": "sum(rate(shop_http_requests_total{path=~\"$path\",status=~\"5..\"}[1m])) / sum(rate(shop_http_requests_total{path=~\"$path\"}[1m]))",
           "legendFormat": "error rate",
           "refId": "A"
         }
@@ -92,12 +118,17 @@
       "id": 3,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(shop_http_request_duration_seconds_bucket{path=~\"/|/checkout\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.5, sum(rate(shop_http_request_duration_seconds_bucket{path=~\"$path\"}[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "C"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(shop_http_request_duration_seconds_bucket{path=~\"$path\"}[5m])) by (le))",
           "legendFormat": "p95",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.99, sum(rate(shop_http_request_duration_seconds_bucket{path=~\"/|/checkout\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(shop_http_request_duration_seconds_bucket{path=~\"$path\"}[5m])) by (le))",
           "legendFormat": "p99",
           "refId": "B"
         }
@@ -130,6 +161,36 @@
         "refresh": 1,
         "regex": "",
         "type": "datasource"
+      },
+      {
+        "name": "path",
+        "label": "Path",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": {
+          "query": "label_values(shop_http_requests_total, path)",
+          "refId": "PathVar"
+        },
+        "definition": "label_values(shop_http_requests_total, path)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "options": [],
+        "regex": "^(/|/checkout)$",
+        "sort": 1,
+        "hide": 0
       }
     ]
   },

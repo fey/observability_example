@@ -53,7 +53,7 @@ services:
       - observability
 
   postgres-exporter:
-    image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
     container_name: postgres-exporter
     environment:
       DATA_SOURCE_NAME: postgresql://shop:shop@postgres:5432/shop?sslmode=disable
@@ -65,7 +65,7 @@ services:
       - observability
 
   node-exporter-1:
-    image: prom/node-exporter:v1.9.1
+    image: prom/node-exporter:v1.12.1
     container_name: node-exporter-1
     command:
       - --path.rootfs=/host
@@ -78,7 +78,7 @@ services:
       - observability
 
   node-exporter-2:
-    image: prom/node-exporter:v1.9.1
+    image: prom/node-exporter:v1.12.1
     container_name: node-exporter-2
     command:
       - --path.rootfs=/host
@@ -91,7 +91,7 @@ services:
       - observability
 
   node-exporter-3:
-    image: prom/node-exporter:v1.9.1
+    image: prom/node-exporter:v1.12.1
     container_name: node-exporter-3
     command:
       - --path.rootfs=/host
@@ -104,7 +104,7 @@ services:
       - observability
 
   blackbox-exporter:
-    image: prom/blackbox-exporter:v0.26.0
+    image: prom/blackbox-exporter:v0.29.1
     container_name: blackbox-exporter
     ports:
       - "9115:9115"
@@ -112,7 +112,7 @@ services:
       - observability
 
   prometheus:
-    image: prom/prometheus:v3.2.1
+    image: prom/prometheus:v3.15.1
     container_name: prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
@@ -134,7 +134,7 @@ services:
       - observability
 
   alertmanager:
-    image: prom/alertmanager:v0.28.1
+    image: prom/alertmanager:v0.34.2
     container_name: alertmanager
     ports:
       - "9093:9093"
@@ -142,7 +142,7 @@ services:
       - observability
 
   grafana:
-    image: grafana/grafana:11.5.2
+    image: grafana/grafana:13.3.0
     container_name: grafana
     environment:
       GF_SECURITY_ADMIN_USER: admin
@@ -160,7 +160,7 @@ services:
       - observability
 
   netdata:
-    image: netdata/netdata:v2.10.3
+    image: netdata/netdata:v2.12.2
     container_name: netdata
     cap_add:
       - SYS_PTRACE
@@ -170,6 +170,7 @@ services:
       - "19999:19999"
     volumes:
       - netdata-config:/etc/netdata
+      - ./netdata/go.d/postgres.conf:/etc/netdata/go.d/postgres.conf:ro
       - netdata-lib:/var/lib/netdata
       - netdata-cache:/var/cache/netdata
       - /etc/passwd:/host/etc/passwd:ro
@@ -211,7 +212,7 @@ services:
       - observability
 
   zabbix-server:
-    image: zabbix/zabbix-server-pgsql:7.2-latest
+    image: zabbix/zabbix-server-pgsql:alpine-7.4-latest
     container_name: zabbix-server
     profiles: ["zabbix"]
     depends_on:
@@ -227,7 +228,7 @@ services:
       - observability
 
   zabbix-web:
-    image: zabbix/zabbix-web-nginx-pgsql:7.2-latest
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-7.4-latest
     container_name: zabbix-web
     profiles: ["zabbix"]
     depends_on:
@@ -246,7 +247,7 @@ services:
       - observability
 
   zabbix-agent:
-    image: zabbix/zabbix-agent2:7.2-latest
+    image: zabbix/zabbix-agent2:alpine-7.4-latest
     container_name: zabbix-agent
     profiles: ["zabbix"]
     environment:
@@ -276,13 +277,13 @@ services:
       - observability
 
   nagios:
-    image: jasonrivers/nagios:latest
+    image: jasonrivers/nagios:4.5.12
     container_name: nagios
     profiles: ["nagios"]
     ports:
       - "8082:80"
     volumes:
-      - ./nagios/objects/zz-observability.cfg:/opt/nagios/etc/objects/zz-observability.cfg:ro
+      - ./nagios/objects/zz-observability.cfg:/opt/nagios/etc/conf.d/zz-observability.cfg:ro
     networks:
       - observability
 

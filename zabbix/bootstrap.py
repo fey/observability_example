@@ -18,18 +18,19 @@ def rpc(method, params, auth=None, req_id=1):
         "params": params,
         "id": req_id,
     }
+    headers = {"Content-Type": "application/json-rpc"}
     if auth:
-        payload["auth"] = auth
+        headers["Authorization"] = f"Bearer {auth}"
 
     body = json.dumps(payload).encode("utf-8")
     req = request.Request(
         API_URL,
         data=body,
-        headers={"Content-Type": "application/json-rpc"},
+        headers=headers,
         method="POST",
     )
 
-    with request.urlopen(req, timeout=10) as response:
+    with request.urlopen(req, timeout=120) as response:
         data = json.loads(response.read().decode("utf-8"))
 
     if "error" in data:
